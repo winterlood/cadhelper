@@ -22,7 +22,8 @@
 1. [Releases](../../releases)에서 `CadHelper-*.zip` 을 받아 **바탕화면 등 아무 곳에** 압축을 풉니다. (`%USERPROFILE%\CadHelper` 안에는 풀지 마세요)
 2. `설치하기.cmd` 더블클릭 → 5~10분 기다림 (Python이 없으면 자동 설치, 인터넷 필요)
 3. Codex를 완전히 껐다 켭니다. SketchUp도 껐다 켭니다.
-4. 바탕화면 `CAD도우미 점검` 으로 상태 확인
+4. 처음 한 번만: Codex 데스크톱 앱에서 **프로젝트 추가 → `C:\CAD작업`** 폴더 선택 (이후 이 프로젝트에서 대화)
+5. 바탕화면 `CAD도우미 점검` 으로 상태 확인
 
 자세한 사용법은 함께 들어 있는 **`CAD도우미 사용설명서.pdf`**, AI를 처음 쓰는 분은 **`AI 사용 안내서.pdf`** 를 보세요.
 제거는 `제거하기.cmd` (결과물·백업·배운 내용은 남겨 둠).
@@ -33,6 +34,8 @@
 |---|---|
 | `%USERPROFILE%\CadHelper\` | 프로그램(app), Python 가상환경(venv), 결과물(output), 백업(backups), 배운 내용(knowledge), 기록(logs) |
 | `~/.codex/config.toml` | `# >>> cad-helper >>>` 블록 하나 추가 (stdio MCP 서버 — Codex가 직접 실행, 포트·별도 창 없음). 처음 설치 전 원본은 `config.toml.bak-cadhelper` |
+| `~/.codex/config.toml` (같은 블록 안) | `C:\CAD작업` 신뢰 프로젝트 등록, 쓰기 허용 폴더(`sandbox_workspace_write.writable_roots`: CadHelper). 도면이 있는 내 문서·바탕화면 등은 읽기만 — 도면 열기·저장은 CAD도우미 도구가 확인창을 거쳐 함. 이미 직접 설정한 값이 있으면 건드리지 않음 |
+| `C:\CAD작업\` | Codex 데스크톱 앱 프로젝트 폴더 (프로젝트 규칙 AGENTS.md, `결과물` 바로가기, 바탕화면에 `CAD작업` 바로가기). C:\ 에 만들 수 없는 PC면 바탕화면에 만듦. 제거해도 남겨 둠 |
 | `~/.codex/skills/ch-*` | 기본 스킬 6개 + 사용하며 생기는 `ch-learned-*` |
 | `~/.codex/AGENTS.md` | 표시된 블록 하나 추가 (안전 규칙·학습 규칙) |
 | `%APPDATA%\SketchUp\SketchUp 20xx\SketchUp\Plugins\cadhelper_bridge.rb` | SketchUp 연결 플러그인 (127.0.0.1 전용, 토큰 인증) |

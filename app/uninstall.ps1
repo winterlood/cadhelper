@@ -22,7 +22,7 @@ Get-ChildItem (Join-Path $env:APPDATA 'SketchUp') -Directory -Filter 'SketchUp 2
     Remove-Item -Force -ErrorAction SilentlyContinue (Join-Path $_.FullName 'SketchUp\Plugins\cadhelper_bridge.rb')
 }
 $desk = [Environment]::GetFolderPath('Desktop')
-Remove-Item -Force -ErrorAction SilentlyContinue (Join-Path $desk 'CAD도우미 결과물.lnk'), (Join-Path $desk 'CAD도우미 점검.lnk')
+Remove-Item -Force -ErrorAction SilentlyContinue (Join-Path $desk 'CAD도우미 결과물.lnk'), (Join-Path $desk 'CAD도우미 점검.lnk'), (Join-Path $desk 'CAD작업.lnk')
 Remove-Item -Recurse -Force -ErrorAction SilentlyContinue (Join-Path $HomeDir 'app'), (Join-Path $HomeDir 'venv')
 Write-Host "CAD도우미를 제거했습니다. 결과물·백업·배운 내용은 $HomeDir 에 남아 있습니다." -ForegroundColor Green
 Write-Host "(배운 스킬 ch-learned-* 도 남겨 두었습니다. 다시 설치하면 그대로 이어서 씁니다.)"

@@ -11,6 +11,10 @@ $VenvPy    = Join-Path $VenvDir 'Scripts\python.exe'
 $CodexHome = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $env:USERPROFILE '.codex' }
 $Utf8NoBom = New-Object System.Text.UTF8Encoding $false
 $LogFile   = Join-Path $HomeDir 'logs\install.log'
+$Desk      = [Environment]::GetFolderPath('Desktop')        # OneDrive 바탕화면이어도 실제 위치
+$Work      = Join-Path ($env:SystemDrive + '\') 'CAD작업'     # Codex 데스크톱 앱 프로젝트 폴더 (C:\CAD작업)
+try { New-Item -ItemType Directory -Force -Path $Work -ErrorAction Stop | Out-Null }
+catch { $Work = Join-Path $Desk 'CAD작업' }                 # C:\ 에 만들 권한이 없는 PC면 바탕화면에
 
 function Say($msg, $color = 'White') { Write-Host $msg -ForegroundColor $color; try { Add-Content -LiteralPath $LogFile -Value ("{0} {1}" -f (Get-Date -Format s), $msg) -Encoding UTF8 } catch {} }
 function Step($n, $msg) { Say ""; Say "[$n/8] $msg" 'Cyan' }
@@ -21,6 +25,15 @@ function Get-InstalledPrograms {
             'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*'
     Get-ItemProperty $keys -ErrorAction SilentlyContinue | Where-Object { $_.DisplayName } |
         Select-Object DisplayName, DisplayVersion, InstallLocation
+}
+
+# config.toml 안에 같은 [projects."경로"] / [sandbox_workspace_write] 가 이미 있는지 (중복 표 = Codex 설정 깨짐)
+function Get-TomlProjectPaths($text) {
+    $paths = @()
+    foreach ($m in [regex]::Matches($text, '(?m)^\s*\[projects\.(?:''([^'']*)''|"((?:[^"\\]|\\.)*)")\]')) {
+        if ($m.Groups[1].Success) { $paths += $m.Groups[1].Value } else { $paths += ($m.Groups[2].Value -replace '\\\\', '\') }
+    }
+    return $paths
 }
 
 function Find-Python {
@@ -120,6 +133,20 @@ try {
         throw "Codex 설정에 'cad-helper'가 이미 다른 방식으로 등록돼 있습니다. $cfg 에서 그 항목을 지우고 다시 실행해 주세요."
     }
     $q = { param($s) '"' + $s.Replace('\', '\\').Replace('"', '\"') + '"' }  # TOML basic string, escaped
+    # CAD작업 폴더를 신뢰 프로젝트로 (이미 등록돼 있으면 그대로 둠)
+    $extra = ''
+    if (-not (Get-TomlProjectPaths $text | Where-Object { $_.TrimEnd('\') -ieq $Work.TrimEnd('\') })) {
+        $extra += "`n[projects.$(& $q $Work)]`ntrust_level = `"trusted`"`n"
+    }
+    # 쓰기 허용 폴더: CAD도우미 폴더만. 도면(내 문서·바탕화면 등) 읽기는 원래 어디든 가능하고,
+    # 도면 열기·저장·결과물 만들기는 CAD도우미 도구(샌드박스 밖, 확인창 보호)가 한다.
+    # 내 문서·바탕화면 쓰기를 열면 AI 셸이 도면을 직접 지우거나 덮어쓸 수 있어 일부러 열지 않는다.
+    if ($text -match '(?m)^\s*\[sandbox_workspace_write\]' -or $text -match '(?m)^\s*sandbox_workspace_write\.') {
+        Say "Codex 설정에 쓰기 허용 폴더(sandbox_workspace_write)가 이미 있어 그대로 둡니다." 'Yellow'
+    } else {
+        $roots = @($HomeDir)
+        $extra += "`n[sandbox_workspace_write]`nwritable_roots = [" + (($roots | ForEach-Object { & $q $_ }) -join ', ') + "]`n"
+    }
     $block = @"
 
 # >>> cad-helper >>>
@@ -134,7 +161,7 @@ CADHELPER_HOME = $(& $q $HomeDir)
 CODEX_HOME = $(& $q $CodexHome)
 USERPROFILE = $(& $q $env:USERPROFILE)
 SYSTEMROOT = $(& $q $env:SystemRoot)
-# <<< cad-helper <<<
+$extra# <<< cad-helper <<<
 "@
     [IO.File]::WriteAllText($cfg, $text.TrimEnd() + "`n" + $block, $Utf8NoBom)
     Say "Codex 설정: $cfg" 'Gray'
@@ -186,9 +213,21 @@ SYSTEMROOT = $(& $q $env:SystemRoot)
     }
 
     # 8. 바탕화면 ---------------------------------------------------------------
-    Step 8 "바탕화면 바로가기 만들기"
-    $desk = [Environment]::GetFolderPath('Desktop')
+    Step 8 "CAD작업 폴더와 바탕화면 바로가기 만들기"
+    $desk = $Desk
+    New-Item -ItemType Directory -Force -Path $Work | Out-Null
+    $wa = Join-Path $Work 'AGENTS.md'
+    if (-not (Test-Path $wa) -or ([IO.File]::ReadAllText($wa) -match 'CAD작업 폴더 \(CadHelper\)')) {
+        Copy-Item -Force (Join-Path $Pkg 'codex\project\AGENTS.md') $wa
+    }
     $sh = New-Object -ComObject WScript.Shell
+    $lnk = $sh.CreateShortcut((Join-Path $Work '결과물.lnk'))
+    $lnk.TargetPath = Join-Path $HomeDir 'output'; $lnk.Save()
+    Say "Codex 프로젝트 폴더: $Work" 'Gray'
+    if ($Work -ne (Join-Path $desk 'CAD작업')) {
+        $lnk = $sh.CreateShortcut((Join-Path $desk 'CAD작업.lnk'))
+        $lnk.TargetPath = $Work; $lnk.Save()
+    }
     $lnk = $sh.CreateShortcut((Join-Path $desk 'CAD도우미 결과물.lnk'))
     $lnk.TargetPath = Join-Path $HomeDir 'output'; $lnk.Save()
     $lnk = $sh.CreateShortcut((Join-Path $desk 'CAD도우미 점검.lnk'))
@@ -204,8 +243,9 @@ SYSTEMROOT = $(& $q $env:SystemRoot)
     Say "=============================================" 'Green'
     Say "   설치 완료!" 'Green'
     Say "   1) Codex를 완전히 껐다가 다시 켜 주세요." 'Green'
-    Say "   2) SketchUp을 쓰려면 SketchUp도 껐다 켜 주세요." 'Green'
-    Say "   3) 바탕화면 'CAD도우미 점검'으로 확인할 수 있습니다." 'Green'
+    Say "   2) 처음 한 번만: Codex 앱에서 '프로젝트 추가' -> '$Work' 폴더 선택" 'Green'
+    Say "   3) SketchUp을 쓰려면 SketchUp도 껐다 켜 주세요." 'Green'
+    Say "   4) 바탕화면 'CAD도우미 점검'으로 확인할 수 있습니다." 'Green'
     Say "=============================================" 'Green'
     $code = 0
 } catch {

@@ -12,6 +12,19 @@ os.environ.setdefault("CADHELPER_HOME", str(Path.home() / "CadHelper"))
 os.environ.setdefault("ACAD_MCP_SAVE_DIR", str(Path(os.environ["CADHELPER_HOME"]) / "output"))
 
 
+def _desktop() -> str:
+    try:
+        import ctypes
+        from ctypes import wintypes
+        buf = ctypes.create_unicode_buffer(wintypes.MAX_PATH)
+        ctypes.windll.shell32.SHGetFolderPathW(None, 0x0010, None, 0, buf)  # CSIDL_DESKTOPDIRECTORY
+        if buf.value:
+            return buf.value
+    except Exception:  # noqa: BLE001
+        pass
+    return str(Path.home() / "Desktop")
+
+
 def main() -> None:
     try:
         sys.stdout.reconfigure(encoding="utf-8")
@@ -42,6 +55,14 @@ def main() -> None:
     else:
         ok = False
         print("[문제] Codex에 등록 안 됨 -> 설치하기를 다시 실행하세요")
+
+    work = Path(os.environ.get("SystemDrive", "C:") + "\\") / "CAD작업"
+    if not work.is_dir():
+        work = Path(_desktop()) / "CAD작업"
+    if work.is_dir():
+        print(f"[정상] Codex 프로젝트 폴더: {work}  (Codex 앱에서 이 폴더를 프로젝트로 추가해 쓰세요)")
+    else:
+        print("[확인] C:\\CAD작업 폴더가 없음 -> 설치하기를 다시 실행하세요")
 
     try:
         from acad import bridge
