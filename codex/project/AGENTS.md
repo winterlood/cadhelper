@@ -1,4 +1,4 @@
-# CAD작업 폴더 (CadHelper)
+# work 폴더 (CadHelper)
 
 이 폴더는 인테리어 도면·SketchUp·견적·3D 작업 전용 Codex 프로젝트다. 설치 프로그램이 만든 파일이다.
 

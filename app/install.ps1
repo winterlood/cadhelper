@@ -12,9 +12,9 @@ $CodexHome = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $env:USER
 $Utf8NoBom = New-Object System.Text.UTF8Encoding $false
 $LogFile   = Join-Path $HomeDir 'logs\install.log'
 $Desk      = [Environment]::GetFolderPath('Desktop')        # OneDrive 바탕화면이어도 실제 위치
-$Work      = Join-Path ($env:SystemDrive + '\') 'CAD작업'     # Codex 데스크톱 앱 프로젝트 폴더 (C:\CAD작업)
+$Work      = Join-Path ($env:SystemDrive + '\') 'work'     # Codex 데스크톱 앱 프로젝트 폴더 (C:\work)
 try { New-Item -ItemType Directory -Force -Path $Work -ErrorAction Stop | Out-Null }
-catch { $Work = Join-Path $Desk 'CAD작업' }                 # C:\ 에 만들 권한이 없는 PC면 바탕화면에
+catch { $Work = Join-Path $Desk 'work' }                 # C:\ 에 만들 권한이 없는 PC면 바탕화면에
 
 function Say($msg, $color = 'White') { Write-Host $msg -ForegroundColor $color; try { Add-Content -LiteralPath $LogFile -Value ("{0} {1}" -f (Get-Date -Format s), $msg) -Encoding UTF8 } catch {} }
 function Step($n, $msg) { Say ""; Say "[$n/8] $msg" 'Cyan' }
@@ -133,7 +133,7 @@ try {
         throw "Codex 설정에 'cad-helper'가 이미 다른 방식으로 등록돼 있습니다. $cfg 에서 그 항목을 지우고 다시 실행해 주세요."
     }
     $q = { param($s) '"' + $s.Replace('\', '\\').Replace('"', '\"') + '"' }  # TOML basic string, escaped
-    # CAD작업 폴더를 신뢰 프로젝트로 (이미 등록돼 있으면 그대로 둠)
+    # work 폴더를 신뢰 프로젝트로 (이미 등록돼 있으면 그대로 둠)
     $extra = ''
     if (-not (Get-TomlProjectPaths $text | Where-Object { $_.TrimEnd('\') -ieq $Work.TrimEnd('\') })) {
         $extra += "`n[projects.$(& $q $Work)]`ntrust_level = `"trusted`"`n"
@@ -213,19 +213,19 @@ $extra# <<< cad-helper <<<
     }
 
     # 8. 바탕화면 ---------------------------------------------------------------
-    Step 8 "CAD작업 폴더와 바탕화면 바로가기 만들기"
+    Step 8 "work 폴더와 바탕화면 바로가기 만들기"
     $desk = $Desk
     New-Item -ItemType Directory -Force -Path $Work | Out-Null
     $wa = Join-Path $Work 'AGENTS.md'
-    if (-not (Test-Path $wa) -or ([IO.File]::ReadAllText($wa) -match 'CAD작업 폴더 \(CadHelper\)')) {
+    if (-not (Test-Path $wa) -or ([IO.File]::ReadAllText($wa) -match '(work|CAD작업) 폴더 \(CadHelper\)')) {
         Copy-Item -Force (Join-Path $Pkg 'codex\project\AGENTS.md') $wa
     }
     $sh = New-Object -ComObject WScript.Shell
     $lnk = $sh.CreateShortcut((Join-Path $Work '결과물.lnk'))
     $lnk.TargetPath = Join-Path $HomeDir 'output'; $lnk.Save()
     Say "Codex 프로젝트 폴더: $Work" 'Gray'
-    if ($Work -ne (Join-Path $desk 'CAD작업')) {
-        $lnk = $sh.CreateShortcut((Join-Path $desk 'CAD작업.lnk'))
+    if ($Work -ne (Join-Path $desk 'work')) {
+        $lnk = $sh.CreateShortcut((Join-Path $desk 'work.lnk'))
         $lnk.TargetPath = $Work; $lnk.Save()
     }
     $lnk = $sh.CreateShortcut((Join-Path $desk 'CAD도우미 결과물.lnk'))

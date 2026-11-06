@@ -56,13 +56,13 @@ def main() -> None:
         ok = False
         print("[문제] Codex에 등록 안 됨 -> 설치하기를 다시 실행하세요")
 
-    work = Path(os.environ.get("SystemDrive", "C:") + "\\") / "CAD작업"
+    work = Path(os.environ.get("SystemDrive", "C:") + "\\") / "work"
     if not work.is_dir():
-        work = Path(_desktop()) / "CAD작업"
+        work = Path(_desktop()) / "work"
     if work.is_dir():
         print(f"[정상] Codex 프로젝트 폴더: {work}  (Codex 앱에서 이 폴더를 프로젝트로 추가해 쓰세요)")
     else:
-        print("[확인] C:\\CAD작업 폴더가 없음 -> 설치하기를 다시 실행하세요")
+        print("[확인] C:\\work 폴더가 없음 -> 설치하기를 다시 실행하세요")
 
     try:
         from acad import bridge
