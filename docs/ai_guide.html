@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>AI 사용 안내서</title>
+<style>
+@page{size:A4;margin:16mm 16mm 18mm}
+body{font-family:"Malgun Gothic","맑은 고딕",sans-serif;font-size:13.5pt;line-height:1.65;color:#1c252d}
+h1{font-size:28pt;margin:0 0 4mm}
+h2{font-size:17pt;margin:9mm 0 3mm;padding-bottom:2mm;border-bottom:2px solid #1c252d;break-after:avoid}
+.cover{height:240mm;display:flex;flex-direction:column;justify-content:center}
+.cover .sub{font-size:16pt;color:#5b6873}
+.tag{color:#c4122f;font-weight:700;letter-spacing:.1em;font-size:11pt}
+.box{border:1.5px solid #1c252d;border-radius:3mm;padding:4mm 5mm;margin:3mm 0;break-inside:avoid}
+.warn{border-color:#c4122f;background:#fff5f6}
+.ok{background:#f3f8f4;border-color:#2f6f4f}
+table{border-collapse:collapse;width:100%;font-size:12pt;break-inside:avoid}
+td,th{border:1px solid #999;padding:2mm 3mm;text-align:left;vertical-align:top}
+th{background:#e9eef2}
+.page{break-before:page}
+.bad{color:#b3341f}.good{color:#2f6f4f;font-weight:600}
+li{margin:1.5mm 0}
+.small{font-size:11pt;color:#5b6873}
+</style></head><body>
+
+<section class="cover">
+  <div class="tag">AI 처음 쓰는 분을 위한</div>
+  <h1>AI 사용 안내서</h1>
+  <div class="sub">Codex 같은 AI에게 일을 잘 시키는 방법과 조심할 점</div>
+  <div class="box ok" style="margin-top:20mm">
+    <b>세 줄 요약</b>
+    <ol><li>AI는 <b>말 잘 알아듣는 신입 직원</b>이라고 생각하세요.</li>
+    <li><b>구체적으로</b> 시키고, 결과의 <b>숫자는 한 번 확인</b>하세요.</li>
+    <li>고객 개인정보·비밀번호는 <b>입력하지 마세요.</b></li></ol>
+  </div>
+</section>
+
+<section class="page">
+<h2>1. AI는 이런 직원입니다</h2>
+<table>
+<tr><th>잘하는 것</th><th>못하거나 조심할 것</th></tr>
+<tr><td>
+<ul><li>시키는 일을 빠르게 반복</li><li>표 정리, 계산, 엑셀 만들기</li><li>글 쓰기 (견적 설명, 고객 안내문)</li><li>도면 숫자 재기 (CAD도우미 연결 시)</li></ul>
+</td><td>
+<ul><li>가끔 <b>그럴듯하게 틀린 답</b>을 함</li><li>현장 상황은 모름 (알려줘야 앎)</li><li>말하지 않은 단가·규칙은 모름</li><li>대화가 아주 길어지면 앞 내용을 잊기도 함</li></ul>
+</td></tr></table>
+<div class="box">신입 직원에게 일을 줄 때처럼 <b>무엇을, 어떤 기준으로, 어떤 형태로</b> 원하는지 말해 주면 결과가 확 좋아집니다.</div>
+
+<h2>2. 일 잘 시키는 법</h2>
+<table>
+<tr><th style="width:50%">이렇게 말하기보다</th><th>이렇게 말하면 더 좋아요</th></tr>
+<tr><td class="bad">"견적 만들어줘"</td><td class="good">"지금 열린 도면으로 거실·방 바닥 강마루 견적서 엑셀로 만들어줘. 발코니는 빼고"</td></tr>
+<tr><td class="bad">"면적 알려줘"</td><td class="good">"실별 면적이랑 전체 평수 알려줘. 욕실은 따로 표시해줘"</td></tr>
+<tr><td class="bad">"3D 해줘"</td><td class="good">"고객한테 보낼 3D 만들어줘. 천장고 2300, 거실 바닥은 밝은 원목색"</td></tr>
+<tr><td class="bad">"이상한데?"</td><td class="good">"침실1 면적이 너무 작아. 붙박이장까지 포함해서 다시 계산해줘"</td></tr>
+</table>
+<ul><li>한 번에 하나씩 시키면 실수가 줄어듭니다.</li>
+<li>결과가 마음에 안 들면 <b>어디가 왜 마음에 안 드는지</b> 말해 주세요. 다시 만듭니다.</li>
+<li>"어떻게 계산했어?"라고 물으면 근거를 설명합니다.</li></ul>
+</section>
+
+<section class="page">
+<h2>3. 숫자는 꼭 한 번 확인</h2>
+<div class="box warn">
+<p>AI는 계산 자체는 정확하지만, <b>어느 선을 방 경계로 볼지, 무엇을 포함할지</b>는 잘못 판단할 수 있습니다.</p>
+<ul><li>전체 평수가 평소 알던 값과 크게 다르면 → "어떤 기준으로 쟀어?"라고 묻기</li>
+<li>견적서에서 단가가 0원인 줄 → AI가 단가를 몰라서 비워 둔 것. 단가를 알려주세요</li>
+<li>고객에게 나가는 견적·면적은 <b>최종 확인은 사람이</b> 합니다</li></ul>
+</div>
+
+<h2>4. 대화 다루는 법</h2>
+<ul>
+<li><b>새 일은 새 대화로</b> 시작하면 헷갈리지 않습니다. (Codex에서 새 대화 버튼)</li>
+<li>같은 일을 이어서 할 때는 같은 대화에서 계속 말하면 됩니다.</li>
+<li>AI가 엉뚱한 쪽으로 가면 "멈춰" 또는 "처음부터 다시"라고 말하세요.</li>
+<li>CAD도우미는 중요한 것(단가·회사 정보·규칙)을 따로 기억하므로 새 대화에서도 이어집니다.</li>
+</ul>
+
+<h2>5. 요금(토큰) 이야기</h2>
+<p>AI는 쓴 만큼 사용량이 쌓입니다. 질문 하나는 아주 적게, 3D 만들기처럼 큰 일은 조금 더 씁니다.</p>
+<ul><li>사용량이 다 차면 잠시 쉬었다 쓰라는 안내가 나옵니다. 고장이 아닙니다.</li>
+<li>같은 질문을 여러 번 반복하기보다, 한 번에 원하는 걸 정확히 말하는 게 아낍니다.</li></ul>
+</section>
+
+<section class="page">
+<h2>6. 보안과 개인정보</h2>
+<div class="box warn">
+<b>입력하지 마세요</b>
+<ul><li>주민등록번호, 계좌번호, 카드번호</li><li>비밀번호, 인증번호</li><li>고객 연락처를 대량으로 붙여넣기</li></ul>
+</div>
+<ul>
+<li>AI가 "이 파일을 지울까요?", "프로그램을 설치할까요?"라고 물으면, 무슨 뜻인지 모르겠으면 <b>「아니요」</b>.</li>
+<li>모르는 사람이 보낸 파일을 AI에게 열어보라고 시키지 마세요.</li>
+<li>도면 원본은 AI가 덮어쓰지 않게 설정돼 있지만, <b>중요한 도면은 따로 복사본</b>을 두는 습관을 들이세요.</li>
+</ul>
+
+<h2>7. 자주 쓰는 말 모음</h2>
+<table>
+<tr><th style="width:45%">상황</th><th>이렇게 말하기</th></tr>
+<tr><td>처음 시작</td><td>"지금 열린 도면 뭐가 있는지 알려줘"</td></tr>
+<tr><td>근거 확인</td><td>"어떻게 계산했어? 쉽게 설명해줘"</td></tr>
+<tr><td>다시 하기</td><td>"○○ 빼고 다시 해줘"</td></tr>
+<tr><td>기억시키기</td><td>"앞으로는 항상 ○○로 해"</td></tr>
+<tr><td>기억 확인</td><td>"지금까지 배운 거 보여줘"</td></tr>
+<tr><td>파일 보기</td><td>"방금 만든 거 열어줘" / "결과물 폴더 열어줘"</td></tr>
+<tr><td>막혔을 때</td><td>"CAD도우미 상태 확인해줘"</td></tr>
+</table>
+<p class="small">이 안내서는 CAD도우미와 함께 설치됩니다. 바탕화면에서 언제든 다시 볼 수 있습니다.</p>
+</section>
+</body></html>

@@ -1,0 +1,7 @@
+# CAD도우미 dependencies (pinned; verified on Python 3.13/3.14, Windows 11)
+mcp==1.28.1
+pywin32==311
+Pillow==12.3.0
+ezdxf==1.4.5
+openpyxl==3.1.5
+shapely==2.1.2

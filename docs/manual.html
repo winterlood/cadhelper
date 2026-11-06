@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>CAD도우미 사용설명서</title>
+<style>
+@page{size:A4;margin:16mm 16mm 18mm}
+body{font-family:"Malgun Gothic","맑은 고딕",sans-serif;font-size:13.5pt;line-height:1.65;color:#1c252d}
+h1{font-size:28pt;margin:0 0 4mm}
+h2{font-size:17pt;margin:9mm 0 3mm;padding-bottom:2mm;border-bottom:2px solid #1c252d;break-after:avoid}
+h3{font-size:14pt;margin:5mm 0 2mm}
+.cover{height:240mm;display:flex;flex-direction:column;justify-content:center}
+.cover .sub{font-size:16pt;color:#5b6873}
+.cover .tag{color:#c4122f;font-weight:700;letter-spacing:.1em;font-size:11pt}
+.box{border:1.5px solid #1c252d;border-radius:3mm;padding:4mm 5mm;margin:3mm 0;break-inside:avoid}
+.warn{border-color:#c4122f;background:#fff5f6}
+.ok{background:#f3f8f4;border-color:#2f6f4f}
+.q{background:#f2f4f6;border-left:4px solid #1c252d;padding:2.5mm 4mm;margin:2mm 0;font-weight:600;break-inside:avoid}
+ol li,ul li{margin:1.5mm 0}
+table{border-collapse:collapse;width:100%;font-size:12pt;break-inside:avoid}
+td,th{border:1px solid #999;padding:2mm 3mm;text-align:left;vertical-align:top}
+th{background:#e9eef2}
+.page{break-before:page}
+.big{font-size:15pt;font-weight:700}
+kbd{border:1px solid #888;border-radius:1mm;padding:0 1.5mm;font-family:inherit;background:#fafafa}
+.small{font-size:11pt;color:#5b6873}
+</style></head><body>
+
+<section class="cover">
+  <div class="tag">INTERIOR · AI ASSISTANT</div>
+  <h1>CAD도우미 사용설명서</h1>
+  <div class="sub">AutoCAD · SketchUp · 엑셀 견적을 Codex에게 말로 시키는 방법</div>
+  <p style="margin-top:20mm" class="big">이 설명서 한 장만 기억하세요</p>
+  <div class="box ok">
+    <ol>
+      <li>AutoCAD(또는 SketchUp)에서 <b>도면을 연다</b></li>
+      <li><b>Codex</b>를 열고 <b>하고 싶은 일을 말로 쓴다</b></li>
+      <li>AI가 도면을 바꾸려 하면 <b>확인창</b>이 뜬다 → 괜찮으면 <kbd>예</kbd>, 아니면 <kbd>아니요</kbd></li>
+    </ol>
+  </div>
+</section>
+
+<section class="page">
+<h2>1. CAD도우미가 뭐예요?</h2>
+<p>Codex(AI 프로그램)가 컴퓨터에 켜져 있는 <b>AutoCAD와 SketchUp을 직접 보고, 재고, 만들 수 있게</b> 연결해 주는 프로그램입니다.</p>
+<table>
+<tr><th style="width:32%">할 수 있는 일</th><th>예시</th></tr>
+<tr><td>도면 숫자 묻기</td><td>실별 면적, 전체 평수, 벽 길이, 문·창 개수</td></tr>
+<tr><td>엑셀 만들기</td><td>견적서(수식 포함), 면적표, 물량표, 자재표</td></tr>
+<tr><td>3D 만들기</td><td>고객에게 보낼 3D 설명 페이지, SketchUp 모델, AutoCAD 3D</td></tr>
+<tr><td>SketchUp 집계</td><td>재질별 면적(타일·도장·마루 물량), 가구 개수</td></tr>
+<tr><td>도면 수정</td><td>레이어 정리, 선 지우기, 치수 넣기 — <b>항상 허락을 받고 합니다</b></td></tr>
+</table>
+
+<h2>2. 처음 한 번만: 설치</h2>
+<ol>
+  <li>받은 폴더에서 <b>「설치하기」</b>를 더블클릭합니다. (파란 창이 뜨면 <b>추가 정보 → 실행</b>)</li>
+  <li>검은 창에 글자가 지나갑니다. <b>5~10분</b> 기다립니다. 인터넷이 연결돼 있어야 합니다.</li>
+  <li>「설치 완료!」가 나오면 엔터를 누릅니다.</li>
+  <li><b>Codex를 완전히 껐다가 다시 켭니다.</b> SketchUp도 껐다 켭니다.</li>
+  <li>바탕화면에 <b>「CAD도우미 점검」</b>, <b>「CAD도우미 결과물」</b> 아이콘이 생깁니다.</li>
+</ol>
+<div class="box"><b>점검하는 법</b> — 바탕화면 「CAD도우미 점검」을 더블클릭. <b>[정상]</b>이 나오면 됩니다.
+AutoCAD/SketchUp은 켜져 있을 때만 [정상]으로 나옵니다.</div>
+</section>
+
+<section class="page">
+<h2>3. 매일 쓰는 법</h2>
+<h3>AutoCAD 도면에 대해 물어볼 때</h3>
+<ol><li>AutoCAD에서 그 도면을 엽니다. (여러 개가 열려 있으면 <b>지금 보고 있는 도면</b>을 기준으로 합니다)</li>
+<li>Codex에 질문을 씁니다.</li></ol>
+<h3>SketchUp 모델에 대해 물어볼 때</h3>
+<ol><li>SketchUp을 켜고 모델 파일을 엽니다. (시작 화면에서 멈춰 있으면 연결이 안 됩니다. 파일을 꼭 여세요)</li>
+<li>Codex에 질문을 씁니다.</li></ol>
+
+<h2>4. 이렇게 말하면 됩니다</h2>
+<div class="q">"지금 열린 도면 실별 면적이랑 전체 평수 알려줘"</div>
+<div class="q">"발코니 빼고 전용 면적만 다시 계산해줘"</div>
+<div class="q">"이거 선택했는데 면적 얼마야?" <span class="small">(AutoCAD에서 도형을 먼저 클릭해서 선택)</span></div>
+<div class="q">"이 도면으로 바닥 강마루랑 도배 견적서 엑셀로 만들어줘"</div>
+<div class="q">"면적표 엑셀로 뽑아줘"</div>
+<div class="q">"고객한테 보여줄 3D 만들어줘. 천장고 2300"</div>
+<div class="q">"그 3D 스케치업으로도 만들어줘"</div>
+<div class="q">"스케치업 모델에서 타일 들어간 면적 알려줘"</div>
+<div class="q">"A-DIM 레이어 전부 꺼줘" / "이 선들 지워줘"</div>
+<p class="small">말을 길게 쓸 필요 없습니다. 모르면 "어떻게 하면 돼?"라고 물어보세요.</p>
+</section>
+
+<section class="page">
+<h2>5. 확인창이 뜨면</h2>
+<div class="box warn">
+<p class="big">「CAD도우미 - 변경 확인」 창</p>
+<p>AI가 도면이나 SketchUp 모델을 <b>바꾸거나 지우려고 할 때만</b> 뜹니다. 무엇을 바꾸는지 쓰여 있습니다.</p>
+<ul><li><kbd>예</kbd> — 그대로 실행합니다.</li>
+<li><kbd>아니요</kbd> — 아무것도 바뀌지 않습니다. AI가 다시 물어봅니다.</li></ul>
+<p>잘 모르겠으면 <b>항상 「아니요」</b>를 누르세요. 손해 보는 일이 없습니다.</p>
+</div>
+<ul>
+<li>처음 바꾸기 전에 <b>원본 도면이 자동으로 백업</b>됩니다. (내 문서 폴더 → CadHelper → backups)</li>
+<li>바뀐 게 마음에 안 들면 AutoCAD/SketchUp에서 <kbd>Ctrl</kbd>+<kbd>Z</kbd> 로 되돌릴 수 있습니다.</li>
+<li>도면 저장(Ctrl+S)은 AI가 하지 않습니다. 직접 하세요.</li>
+</ul>
+
+<h2>6. 결과물은 어디에?</h2>
+<p>엑셀, 3D 페이지, 사진은 모두 바탕화면 <b>「CAD도우미 결과물」</b> 폴더에 새 파일로 저장됩니다. 기존 파일을 덮어쓰지 않습니다.</p>
+<p>3D 페이지(.html 파일)는 <b>카카오톡이나 메일로 고객에게 그대로 보내면</b> 고객이 더블클릭해서 볼 수 있습니다. 인터넷이 없어도 열립니다.</p>
+</section>
+
+<section class="page">
+<h2>7. 쓸수록 똑똑해지게 하기</h2>
+<p>CAD도우미는 알려준 것을 <b>기억</b>합니다. 다음 대화에서도 그대로 씁니다.</p>
+<table>
+<tr><th style="width:38%">이렇게 말하면</th><th>기억하는 것</th></tr>
+<tr><td>"앞으로 강마루 단가는 ㎡당 65,000원이야"</td><td>견적서 단가 (다음부터 자동으로 들어감)</td></tr>
+<tr><td>"우리 회사 이름은 ○○인테리어, 전화는 ○○○"</td><td>견적서에 들어갈 회사 정보</td></tr>
+<tr><td>"아니 그게 아니라, 발코니는 항상 빼고 계산해"</td><td>계산 규칙</td></tr>
+<tr><td>"우리는 도배 로스를 10%로 잡아"</td><td>견적 규칙</td></tr>
+<tr><td>"우리가 '하지'라고 하면 각파이프 하지야"</td><td>사무소 용어</td></tr>
+</table>
+<p>같은 종류의 일을 두 번 시키면, AI가 그 방법을 <b>스킬</b>로 저장해서 다음부터는 실수 없이 바로 합니다.</p>
+<div class="box">"지금까지 배운 거 보여줘"라고 하면 기억하고 있는 내용을 보여줍니다.</div>
+
+<h2>8. 문제가 생기면</h2>
+<table>
+<tr><th style="width:40%">증상</th><th>해결</th></tr>
+<tr><td>"AutoCAD에 연결할 수 없다"</td><td>AutoCAD를 켜고 도면을 연 다음 다시 물어보기. AutoCAD에서 명령 실행 중(선 그리는 중 등)이면 <kbd>Esc</kbd> 두 번</td></tr>
+<tr><td>"SketchUp에 연결할 수 없다"</td><td>SketchUp에서 파일을 열었는지 확인. 그래도 안 되면 SketchUp 껐다 켜기</td></tr>
+<tr><td>Codex가 CAD도우미를 모르는 것 같다</td><td>Codex를 완전히 껐다 켜기 → 그래도 안 되면 「설치하기」 다시 실행</td></tr>
+<tr><td>숫자가 이상하다</td><td>"어떻게 계산했어?"라고 물어보기. 레이어 이름을 알려주면 더 정확해집니다</td></tr>
+<tr><td>"AutoCAD LT라서 안 된다"고 나온다</td><td>LT는 외부 연결이 막힌 버전입니다. 면적·3D는 도면을 DXF로 저장해서 보내 주면 처리할 수 있고, 엑셀 견적은 그대로 됩니다</td></tr>
+<tr><td>AutoCAD가 여러 버전 깔려 있다</td><td>지금 <b>켜져 있는</b> AutoCAD에 자동으로 연결합니다. 원하는 버전을 켜 두세요</td></tr>
+<tr><td>그래도 안 된다</td><td>「CAD도우미 점검」 화면을 사진 찍어서 보내기</td></tr>
+</table>
+<h2>9. 지워야 할 때</h2>
+<p>받은 폴더의 <b>「제거하기」</b>를 더블클릭합니다. 결과물·백업·배운 내용은 남겨 둡니다.</p>
+</section>
+</body></html>
