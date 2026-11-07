@@ -31,6 +31,12 @@ Per object (optional): "material" preset - 강마루 원목 목재 타일 대리
 콘크리트 유리 거울 금속 스테인리스 프레임 패브릭 가죽 화이트 다크 위생도기 인조대리석
 (sets colour/gloss/transparency); "color" "#rrggbb" overrides; "opacity" 0-1;
 "spec" (규격, shown on hover); "info" (extra line); "edges": false.
+시공법 패널 (자동): walls/floors get a construction card from their material
+(벽: 도장/벽지/타일, 이름에 가벽 / 바닥: 강마루/타일, 이름에 욕실=방수 포함).
+Override per office with top-level "methods": {"바닥_강마루": {"title": "...",
+"side": "floor"|"wall", "layers": [{"name": "...", "t": mm, "color": "#..", "how": "고객용 설명"}],
+"note": "..."}} (keys: 바닥_강마루 바닥_타일 욕실_바닥 벽_타일 벽_도장 벽_도배 가벽, or new ones),
+and per object "construction": "키" or {same shape}. layers go from 바탕 to 마감.
 Points may be [[x,y],...] (flat [x,y,x,y] is also accepted).
 """
 
@@ -41,7 +47,8 @@ import re
 from datetime import date
 from pathlib import Path
 
-from .safety import HOME, OUT_DIR
+from . import safety
+from .safety import HOME
 
 TEMPLATES = Path(__file__).resolve().parent.parent / "templates"
 
@@ -197,8 +204,8 @@ def _pairs(v, what: str) -> list:
 
 def _safe_name(name: str, ext: str) -> Path:
     stem = re.sub(r'[\\/:*?"<>|]+', "_", Path(name).stem or "scene")
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    return OUT_DIR / f"{stem}{ext}"
+    safety.out_dir().mkdir(parents=True, exist_ok=True)
+    return safety.out_dir() / f"{stem}{ext}"
 
 
 def build_html(scene_path: str, filename: str = "") -> Path:
@@ -298,8 +305,8 @@ def build_dxf(scene_path: str, filename: str = "") -> Path:
 def write_expanded(scene_path: str) -> Path:
     """Validated + expanded copy of a scene for the SketchUp builder."""
     data = expand(_load(scene_path))
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    out = OUT_DIR / "_sketchup_scene.json"
+    safety.out_dir().mkdir(parents=True, exist_ok=True)
+    out = safety.out_dir() / "_sketchup_scene.json"
     out.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
     return out
 

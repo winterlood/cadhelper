@@ -1,12 +1,12 @@
 ﻿param([switch]$NoPause)
-# CAD도우미 제거. 결과물, 백업·배운 내용(.cadhelper\knowledge, backups), 배운 스킬(ch-learned-*)은 남겨 둡니다.
+# CAD도우미 제거. 현장 폴더(projects), 결과물, 백업·배운 내용(.cadhelper\knowledge, backups), 배운 스킬(ch-learned-*)은 남겨 둡니다.
 $ErrorActionPreference = 'Continue'
 $Desk      = [Environment]::GetFolderPath('Desktop')
 $CodexHome = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $env:USERPROFILE '.codex' }
 $Utf8NoBom = New-Object System.Text.UTF8Encoding $false
 $TomlBlock = '(?s)\r?\n?# >>> cad-helper >>>.*?# <<< cad-helper <<<\r?\n?'
 $MdBlock   = '(?s)<!-- >>> CAD도우미 \(CadHelper\) >>>.*?<!-- <<< CAD도우미 \(CadHelper\) <<< -->\r?\n?'
-$Shipped   = 'ch-cad-area-qa', 'ch-estimate-excel', 'ch-3d-presentation', 'ch-sketchup', 'ch-cad-edit-safely', 'ch-self-improve'
+$Shipped   = 'ch-cad-area-qa', 'ch-estimate-excel', 'ch-3d-presentation', 'ch-sketchup', 'ch-cad-edit-safely', 'ch-self-improve', 'ch-projects', 'ch-presentation-ppt'
 
 function Strip($path, $pattern, $sep) {
     if (Test-Path -LiteralPath $path) {

@@ -14,7 +14,8 @@ from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 
 from .learn import load_prices, load_profile
-from .safety import HOME, OUT_DIR
+from . import safety
+from .safety import HOME
 
 THIN = Side(style="thin", color="999999")
 BOX = Border(left=THIN, right=THIN, top=THIN, bottom=THIN)
@@ -26,11 +27,11 @@ WON = '#,##0;[Red]-#,##0'
 
 def _new_path(filename: str) -> Path:
     stem = re.sub(r'[\\/:*?"<>|]+', "_", Path(filename).stem or "표")
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    p = OUT_DIR / f"{stem}.xlsx"
+    safety.out_dir().mkdir(parents=True, exist_ok=True)
+    p = safety.out_dir() / f"{stem}.xlsx"
     n = 2
     while p.exists():
-        p = OUT_DIR / f"{stem} ({n}).xlsx"
+        p = safety.out_dir() / f"{stem} ({n}).xlsx"
         n += 1
     return p
 
@@ -49,7 +50,7 @@ def build_estimate(filename, project, client, items, vat=True, overhead_pct=0.0,
     wb = Workbook()
     ws = wb.active
     ws.title = "견적서"
-    widths = [6, 16, 26, 22, 9, 7, 14, 16, 20]
+    widths = [9, 16, 26, 22, 9, 7, 14, 16, 20]
     for i, w in enumerate(widths, 1):
         ws.column_dimensions[get_column_letter(i)].width = w
 

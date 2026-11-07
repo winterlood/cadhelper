@@ -49,6 +49,17 @@ td:last-child{text-align:right;padding-left:8px}
 #hide{position:fixed;top:12px;left:344px;z-index:4}
 body.collapsed .panel{display:none}
 body.collapsed #hide{left:12px}
+#conList button{font-size:12px}
+#conList button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.con h3{font-size:14px;margin:2px 0 6px}
+.con svg{width:100%;height:auto;display:block;background:#f4f6f7;border:1px solid var(--line)}
+.con .stepbar{display:flex;gap:6px;align-items:center;margin-top:8px}
+.con .stepbar .out{flex:1;text-align:center}
+.con .now{margin:8px 0 0;padding:8px 10px;background:#fff;border-left:3px solid var(--accent);line-height:1.6}
+.con .now b{display:block}
+.con ol{margin:8px 0 0;padding-left:20px;line-height:1.6;color:var(--muted)}
+.con ol li.cur{color:var(--ink);font-weight:600}
+.con .disc{color:var(--muted);font-size:11px;margin-top:6px}
 @media (max-width:700px){.panel{top:auto;bottom:8px;left:8px;right:8px;width:auto;max-height:44%}#hide{top:8px;left:8px}.hint{display:none}}
 @media print{.panel{position:static;width:auto;max-height:none;box-shadow:none}#hide,.hint{display:none}}
 </style>
@@ -67,6 +78,9 @@ body.collapsed #hide{left:12px}
     <input type="range" id="cut" min="0" max="100" value="100">
     <div class="row"><button id="reset" type="button">절단 해제</button><label class="tog"><input type="checkbox" id="xray">벽 반투명</label></div></div>
   <div class="sec"><h2>레이어</h2><div class="row" id="layers"></div></div>
+  <div class="sec" id="conSec" hidden><h2>시공법 · 자재가 붙는 순서</h2>
+    <div class="row" id="conList"></div>
+    <div class="con" id="conCard"><p class="note">벽이나 바닥을 클릭하거나 위 항목을 누르면 시공 단면과 순서가 나옵니다.</p></div></div>
   <div class="sec" id="sumSec" hidden><h2>요약</h2><table id="sum"></table><p class="note" id="badgeNote" hidden></p></div>
   <div class="sec" id="matSec" hidden><h2>자재 제안 · 규격</h2><table id="mats"></table></div>
   <div class="sec"><p class="note" id="foot"></p></div>
@@ -103,6 +117,70 @@ const PRESET = {
   패브릭:{color:'#d9d1bf',r:1,m:0}, 가죽:{color:'#6b4a36',r:.6,m:0}, 화이트:{color:'#f4f1e8',r:.7,m:0},
   다크:{color:'#3a4143',r:.7,m:0}, 위생도기:{color:'#f7f7f5',r:.25,m:0}, 인조대리석:{color:'#efece6',r:.4,m:0}
 };
+
+// ---------------- 시공법 (construction methods) ----------------
+// layers: 바탕(아래·벽 쪽) → 마감(위·실내 쪽) 순서. t = 두께 mm. how = 그 단계에서 하는 일.
+// 일반적인 시공 예시이며, scene 의 "methods" 로 사무소 방식에 맞게 바꾸거나 추가할 수 있다.
+const LIB = {
+  바닥_강마루:{title:'강마루 바닥 (접착식)', side:'floor', layers:[
+    {name:'콘크리트 슬래브',t:210,color:'#9aa0a3',how:'건물 구조체입니다. 그대로 둡니다.'},
+    {name:'바닥 몰탈 (난방 배관층)',t:40,color:'#b9b4a8',how:'난방 배관이 묻혀 있는 기존 바닥입니다. 들뜸·균열을 확인하고 보수합니다.'},
+    {name:'평탄 보수 (그라인딩·퍼티)',t:2,color:'#d8d2c4',how:'튀어나온 곳은 갈아내고 꺼진 곳은 메워 평평하게 만듭니다.'},
+    {name:'마루 전용 접착제',t:1.5,color:'#e0c27a',how:'빗살 헤라로 접착제를 고르게 펴 바릅니다.'},
+    {name:'강마루 7.5T',t:7.5,color:'#c8a27a',how:'이음이 겹치지 않게 엇갈려 붙이고, 벽에서 8~10mm 띄워 걸레받이로 가립니다.'}],
+    note:'붙인 뒤 하루 정도는 무거운 가구를 올리지 않습니다.'},
+  바닥_타일:{title:'타일 바닥 (주방·현관·발코니)', side:'floor', layers:[
+    {name:'콘크리트 슬래브',t:210,color:'#9aa0a3',how:'건물 구조체입니다.'},
+    {name:'바닥 몰탈',t:40,color:'#b9b4a8',how:'기존 바닥면을 정리하고 수평 기준선을 표시합니다.'},
+    {name:'압착 시멘트 (타일 접착)',t:6,color:'#c4c0b6',how:'빗살 흙손으로 고르게 바르고 타일을 눌러 붙입니다.'},
+    {name:'포세린 타일',t:10,color:'#c9c5b9',how:'레벨 클립으로 타일끼리 높이를 맞춥니다.'},
+    {name:'줄눈',t:1,color:'#8f8f8a',how:'타일 사이를 줄눈재로 메우고 닦아낸 뒤 하루 굳힙니다.'}]},
+  욕실_바닥:{title:'욕실 바닥 (방수 + 타일)', side:'floor', layers:[
+    {name:'콘크리트 슬래브',t:210,color:'#9aa0a3',how:'기존 타일·몰탈을 걷어내고 바탕을 드러냅니다.'},
+    {name:'방수층 (도막 방수)',t:2,color:'#5f9db3',how:'바닥 전체와 벽 아래쪽까지 방수재를 2회 이상 바르고, 물을 받아 48시간 새는지 확인합니다.'},
+    {name:'보호 몰탈 (물매)',t:40,color:'#b9b4a8',how:'방수층을 보호하고 물이 배수구로 흐르게 기울기를 잡습니다.'},
+    {name:'압착 시멘트',t:6,color:'#c4c0b6',how:'타일을 붙이기 위한 접착층입니다.'},
+    {name:'논슬립 바닥 타일',t:9,color:'#c9c5b9',how:'미끄럼 방지 타일을 배수구 쪽 기울기에 맞춰 붙입니다.'},
+    {name:'줄눈 (방수형)',t:1,color:'#7f8a8f',how:'물이 스미지 않는 줄눈재로 메웁니다.'}]},
+  벽_타일:{title:'욕실 벽 타일', side:'wall', layers:[
+    {name:'벽체 (콘크리트·조적)',t:150,color:'#a7abad',how:'기존 타일을 떼고 들뜬 곳을 보수합니다.'},
+    {name:'방수층 (샤워 구역)',t:1.5,color:'#5f9db3',how:'물이 닿는 샤워 쪽 벽에 방수재를 바릅니다.'},
+    {name:'타일 접착제',t:5,color:'#c4c0b6',how:'빗살 흙손으로 펴 바릅니다.'},
+    {name:'벽 타일',t:9,color:'#d9d5cb',how:'아래에서 위로 수평을 맞춰 붙입니다.'},
+    {name:'줄눈 · 실리콘',t:1,color:'#8f8f8a',how:'줄눈을 넣고 모서리와 기구 주변은 실리콘으로 마감합니다.'}]},
+  벽_도장:{title:'벽 도장 (페인트)', side:'wall', layers:[
+    {name:'벽체 (콘크리트·석고보드)',t:150,color:'#a7abad',how:'기존 벽지를 걷어내고 바탕을 정리합니다.'},
+    {name:'퍼티 2회 · 샌딩',t:1,color:'#e7e2d6',how:'틈과 요철을 퍼티로 두 번 메우고 사포로 매끈하게 갈아냅니다.'},
+    {name:'하도 (프라이머)',t:0.1,color:'#efe9dc',how:'페인트가 잘 붙도록 바탕용 도료를 바릅니다.'},
+    {name:'수성 페인트 2회',t:0.2,color:'#ece8df',how:'롤러로 두 번 칠해 색을 고르게 냅니다.'}]},
+  벽_도배:{title:'벽 도배 (실크벽지)', side:'wall', layers:[
+    {name:'벽체 (콘크리트·석고보드)',t:150,color:'#a7abad',how:'기존 벽지를 걷어냅니다.'},
+    {name:'퍼티 보수',t:1,color:'#e7e2d6',how:'틈·못 자국을 메워 면을 고릅니다.'},
+    {name:'초배지 (부직포)',t:0.3,color:'#f2efe8',how:'벽지가 들뜨지 않게 밑종이를 먼저 붙입니다.'},
+    {name:'실크벽지',t:0.4,color:'#eeeae2',how:'무늬를 맞춰 붙이고 몰딩·걸레받이 쪽을 깔끔하게 정리합니다.'}]},
+  가벽:{title:'경량 가벽 (새로 세우는 벽)', side:'wall', layers:[
+    {name:'경량 스터드 65형 (@450)',t:65,color:'#9aa4ab',how:'바닥과 천장에 레일을 고정하고 450mm 간격으로 기둥을 세웁니다.'},
+    {name:'흡음재 (그라스울)',t:50,color:'#e9d88f',how:'기둥 사이에 소리 차단용 흡음재를 채웁니다.'},
+    {name:'석고보드 9.5T × 2겹',t:19,color:'#e6e6e2',how:'이음이 겹치지 않게 두 겹으로 붙여 단단하게 만듭니다.'},
+    {name:'퍼티 · 마감',t:1,color:'#ece8df',how:'이음매를 퍼티로 메운 뒤 도배나 도장으로 마감합니다.'}]}
+};
+Object.assign(LIB, S.methods || {});
+const objMethods = new Map();
+function methodKey(o){
+  if (o.construction){
+    if (typeof o.construction === 'string') return LIB[o.construction] ? o.construction : null;
+    let k = objMethods.get(o.construction);
+    if (!k){ k = '__obj' + objMethods.size; objMethods.set(o.construction, k); LIB[k] = o.construction; }
+    return k;
+  }
+  const nm = (o.name || '') + ' ' + (o.layer || ''), m = o.material || '';
+  const isWall = o.kind === 'wall' || o.role === 'wall';
+  const isFloor = !isWall && /floor|바닥/.test(nm);
+  const wet = /욕실|화장실|샤워|bath/i.test(nm);
+  if (isWall){ if (/가벽|경량/.test(nm)) return '가벽'; if (m === '타일' || wet) return '벽_타일'; if (m === '벽지') return '벽_도배'; if (m === '도장' || !m) return '벽_도장'; return null; }
+  if (isFloor){ if (wet) return '욕실_바닥'; if (m === '강마루' || m === '원목') return '바닥_강마루'; if (m === '타일' || m === '석재' || m === '대리석') return '바닥_타일'; }
+  return null;
+}
 
 // ---------------- geometry expansion (window/door → prisms) ----------------
 function rectAlong(a, b, t, ext){ const dx=b[0]-a[0], dy=b[1]-a[1], L=Math.hypot(dx,dy)||1; const ux=dx/L, uy=dy/L, nx=-uy*t, ny=ux*t;
@@ -179,7 +257,7 @@ function mat(o){
 }
 function addMesh(geo,o){const m=mat(o);const me=new THREE.Mesh(geo,m);me.castShadow=!m.transparent;me.receiveShadow=true;
   if(o.edges!==false){me.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo,25),edgeMat));}
-  me.userData={name:o.name||'',spec:o.spec||'',info:o.info||'',kind:o.kind,layer:o.layer};pick.push(me);grp(o.layer).add(me);return me;}
+  me.userData={name:o.name||'',spec:o.spec||'',info:o.info||'',kind:o.kind,layer:o.layer,method:methodKey(o)};pick.push(me);grp(o.layer).add(me);return me;}
 function prismGeo(points,z0,z1){
   let pts=points; if(pts.length>3&&pts[0][0]===pts[pts.length-1][0]&&pts[0][1]===pts[pts.length-1][1]) pts=pts.slice(0,-1);
   const sh=new THREE.Shape(pts.map(p=>new THREE.Vector2(wx(p[0]),-wz(p[1]))));
@@ -250,20 +328,62 @@ function show(o,e){
   if(d.spec)tip.append(txt(document.createElement('div'),d.spec));
   if(d.info)tip.append(txt(document.createElement('div'),d.info));
   tip.append(txt(document.createElement('div'),'외접 크기 '+mm(s.x)+' × '+mm(s.z)+' × 높이 '+mm(s.y)+' mm'));
+  if(d.method&&LIB[d.method])tip.append(txt(document.createElement('div'),'시공법: '+(LIB[d.method].title||d.method)+(pinned?' (왼쪽 패널에 표시)':' · 클릭하면 보기')));
   tip.append(txt(document.createElement('small'),pinned?'고정됨 · 다시 클릭하거나 Esc로 해제':'클릭하면 고정'));
   tip.style.display='block';tip.style.left=Math.min(e.clientX+18,innerWidth-290)+'px';tip.style.top=Math.min(e.clientY+18,innerHeight-160)+'px';}
 renderer.domElement.addEventListener('pointermove',e=>{if(e.buttons||pinned)return;show(hitAt(e),e);});
 renderer.domElement.addEventListener('pointerleave',()=>{if(!pinned)clearHighlight();});
 let downAt=null;renderer.domElement.addEventListener('pointerdown',e=>{downAt=[e.clientX,e.clientY];});
 renderer.domElement.addEventListener('click',e=>{if(downAt&&Math.hypot(e.clientX-downAt[0],e.clientY-downAt[1])>4)return;
-  if(pinned){pinned=false;clearHighlight();return;}const o=hitAt(e);if(o){pinned=true;show(o,e);}});
+  if(pinned){pinned=false;clearHighlight();return;}const o=hitAt(e);if(o){pinned=true;show(o,e);if(o.userData.method)showMethod(o.userData.method,false);}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){pinned=false;clearHighlight();}});
+
+// ---------------- 시공법 카드 ----------------
+const usedKeys=[...new Set(pick.map(m=>m.userData.method).filter(k=>k&&LIB[k]))];
+let groupLit=[];
+function unlightGroup(){groupLit.forEach(([me,orig])=>{me.material.dispose();me.material=orig;});groupLit=[];}
+function lightGroup(key){unlightGroup();pick.forEach(me=>{if(me.userData.method===key&&me!==highlighted){const orig=me.material;me.material=orig.clone();me.material.emissive=new THREE.Color(0x5a2a10);groupLit.push([me,orig]);}});}
+const SVGNS='http://www.w3.org/2000/svg';
+function el(tag,attrs,text){const e=document.createElementNS(SVGNS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(text!=null)e.textContent=text;return e;}
+let conKey=null,conStep=0,conTimer=null;
+function fmtT(t){t=+t;return t>=1?String(Math.round(t*10)/10):String(t);}
+function drawSection(M,upto){
+  const L=M.layers||[],W=300,hs=L.map(l=>Math.round(12+9*Math.log2(1+Math.max(0,+l.t||0)))),H=hs.reduce((a,b)=>a+b,0)+30;
+  const svg=el('svg',{viewBox:'0 0 '+W+' '+H,role:'img','aria-label':(M.title||'')+' 단면'});
+  svg.append(el('text',{x:8,y:14,'font-size':10,fill:'#5b6873'},M.side==='wall'?'벽 바탕(아래) → 실내 쪽 마감(위)':'바닥 바탕(아래) → 마감(위)'));
+  let y=H-6;
+  L.forEach((l,i)=>{const h=hs[i];y-=h;const on=i<upto,cur=i===upto-1;
+    svg.append(el('rect',{x:8,y:y,width:64,height:h-1,fill:on?(l.color||'#ccc'):'#ffffff',stroke:cur?'#c4122f':'#9aa4ab','stroke-width':cur?2:1,'stroke-dasharray':on?'':'3 3'}));
+    svg.append(el('text',{x:80,y:y+h/2+4,'font-size':11,fill:on?'#1c252d':'#a3acb3','font-weight':cur?700:400},(i+1)+'. '+l.name+(l.t!=null?' · '+fmtT(l.t)+'mm':'')));});
+  return svg;}
+function stopPlay(){if(conTimer){clearInterval(conTimer);conTimer=null;}}
+function mk(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;}
+function renderCard(){
+  const M=LIB[conKey],card=$('conCard');card.replaceChildren();if(!M)return;
+  const L=M.layers||[];
+  card.append(mk('h3','',M.title||conKey),drawSection(M,conStep));
+  const bar=mk('div','stepbar'),prev=mk('button','','◀ 이전'),next=mk('button','','다음 ▶'),play=mk('button','',conTimer?'■ 멈춤':'▶ 순서대로');
+  prev.type=next.type=play.type='button';
+  prev.onclick=()=>{stopPlay();conStep=Math.max(1,conStep-1);renderCard();};
+  next.onclick=()=>{stopPlay();conStep=Math.min(L.length,conStep+1);renderCard();};
+  play.onclick=()=>{if(conTimer){stopPlay();renderCard();return;}conStep=1;conTimer=setInterval(()=>{if(conStep>=L.length){stopPlay();renderCard();return;}conStep++;renderCard();},1600);renderCard();};
+  bar.append(prev,mk('span','out',conStep+'/'+L.length),next,play);card.append(bar);
+  const cur=L[conStep-1];if(cur){const now=mk('div','now');now.append(mk('b','',conStep+'단계 · '+cur.name),document.createTextNode(cur.how||''));card.append(now);}
+  const ol=mk('ol');L.forEach((l,i)=>{const li=mk('li',i===conStep-1?'cur':'',l.name);li.style.cursor='pointer';li.onclick=()=>{stopPlay();conStep=i+1;renderCard();};ol.append(li);});card.append(ol);
+  card.append(mk('p','disc',(M.note?M.note+' ':'')+'일반적인 시공 순서 예시이며, 현장 상태와 자재에 따라 달라질 수 있습니다.'));}
+function showMethod(key,group){if(!LIB[key])return;stopPlay();conKey=key;conStep=(LIB[key].layers||[]).length;
+  document.querySelectorAll('#conList button').forEach(b=>b.classList.toggle('on',b.dataset.k===key));
+  if(group)lightGroup(key);else unlightGroup();renderCard();
+  if(document.body.classList.contains('collapsed'))$('hide').click();
+  $('conSec').scrollIntoView({block:'nearest',behavior:'smooth'});}
+if(usedKeys.length){$('conSec').hidden=false;usedKeys.forEach(k=>{const b=mk('button','',LIB[k].title||k);b.type='button';b.dataset.k=k;
+  b.onclick=()=>{if(conKey===k&&groupLit.length){unlightGroup();stopPlay();conKey=null;b.classList.remove('on');$('conCard').replaceChildren(mk('p','note','벽이나 바닥을 클릭하거나 위 항목을 누르면 시공 단면과 순서가 나옵니다.'));return;}showMethod(k,true);};$('conList').append(b);});}
 
 addEventListener('resize',resize);resize();camera.position.copy(V('bird'));controls.target.set(0,cz,0);controls.update();
 (function loop(){requestAnimationFrame(loop);if(anim){anim.t=Math.min(1,anim.t+0.03);const s=1-Math.pow(1-anim.t,3);
   camera.position.lerpVectors(anim.fp,anim.tp,s);controls.target.lerpVectors(anim.ft,anim.tt,s);if(anim.t>=1)anim=null;}
   controls.update();renderer.render(scene,camera);})();
-window.__cad={camera,controls,SPAN,bounds:[minX,minY,minZ,maxX,maxY,maxZ],stage,pick,THREE};window.__ready=true;
+window.__cad={camera,controls,SPAN,bounds:[minX,minY,minZ,maxX,maxY,maxZ],stage,pick,THREE,showMethod,LIB,usedKeys};window.__ready=true;
 })();
 </script>
 </body>

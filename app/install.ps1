@@ -5,7 +5,8 @@
 #   C:\work\.codex\config.toml   CAD도우미 연결(MCP) 설정 (표시된 블록만 관리)
 #   C:\work\.codex\skills\ch-*   스킬 (기본 6개 + 쓰면서 배운 ch-learned-*)
 #   C:\work\.cadhelper\          프로그램, Python 환경, 백업, 배운 내용, 기록
-#   C:\work\결과물\              엑셀·3D·사진 결과물
+#   C:\work\projects\<현장>\     현장별 도면·자료·결과물·현장정보
+#   C:\work\결과물\              현장 없이 만든 결과물
 # 사용자 폴더(~\.codex\config.toml)에는 "C:\work 를 신뢰" 한 줄 블록만 넣습니다
 # (Codex는 신뢰한 폴더의 .codex 설정만 읽기 때문에 이것만은 사용자 폴더에 있어야 합니다).
 $ErrorActionPreference = 'Stop'
@@ -27,7 +28,7 @@ $OldHome   = Join-Path $env:USERPROFILE 'CadHelper'    # v1.0.0 설치 위치 (�
 $CodexHome = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $env:USERPROFILE '.codex' }
 $Utf8NoBom = New-Object System.Text.UTF8Encoding $false
 $LogFile   = Join-Path $HomeDir 'logs\install.log'
-$Shipped   = 'ch-cad-area-qa', 'ch-estimate-excel', 'ch-3d-presentation', 'ch-sketchup', 'ch-cad-edit-safely', 'ch-self-improve'
+$Shipped   = 'ch-cad-area-qa', 'ch-estimate-excel', 'ch-3d-presentation', 'ch-sketchup', 'ch-cad-edit-safely', 'ch-self-improve', 'ch-projects', 'ch-presentation-ppt'
 $TomlBlock = '(?s)\r?\n?# >>> cad-helper >>>.*?# <<< cad-helper <<<\r?\n?'
 $MdBlock   = '(?s)<!-- >>> CAD도우미 \(CadHelper\) >>>.*?<!-- <<< CAD도우미 \(CadHelper\) <<< -->\r?\n?'
 
@@ -129,6 +130,7 @@ try {
     Get-ChildItem $AppDir -Recurse -File -Filter '.secret' -ErrorAction SilentlyContinue | Remove-Item -Force
     foreach ($d in 'backups', 'knowledge', 'logs') { New-Item -ItemType Directory -Force -Path (Join-Path $HomeDir $d) | Out-Null }
     New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
+    New-Item -ItemType Directory -Force -Path (Join-Path $Work 'projects') | Out-Null   # 현장별 폴더
     # 예전(v1.0.0) 설치가 있으면 결과물·백업·배운 내용을 옮겨 옴 (원본은 남겨 둠)
     if (Test-Path (Join-Path $OldHome 'knowledge')) {
         Merge-Dir (Join-Path $OldHome 'knowledge') (Join-Path $HomeDir 'knowledge')

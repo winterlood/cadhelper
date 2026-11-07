@@ -21,7 +21,8 @@ from acad import bridge
 
 from .analysis import (ANALYSIS_TIMEOUT, FURNITURE_LAYERS, PYEONG_M2, _doc, _is_closed, _iter_space,
                        _match, _poly_points, _text_of, _units)
-from .safety import HOME, OUT_DIR
+from . import safety
+from .safety import HOME
 
 
 KO = [  # (pattern, Korean)  - longest / most specific first
@@ -235,12 +236,12 @@ def build_draft(ceiling_mm: float = 2300.0, wall_thickness_mm: float = 150.0, do
                    {"id": "room", "name": "공간명"}],
         "objects": objs,
     }
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    safety.out_dir().mkdir(parents=True, exist_ok=True)
     stem = re.sub(r'[\\/:*?"<>|]+', "_", Path(name).stem)
-    out = OUT_DIR / f"{stem}_3d_scene.json"
+    out = safety.out_dir() / f"{stem}_3d_scene.json"
     n = 2
     while out.exists():
-        out = OUT_DIR / f"{stem}_3d_scene ({n}).json"
+        out = safety.out_dir() / f"{stem}_3d_scene ({n}).json"
         n += 1
     out.write_text(json.dumps(scene, ensure_ascii=False, indent=1), encoding="utf-8")
     stats = {"rooms": len(summary_rows), "walls": len(walls), "windows": sum(1 for o in objs if o["kind"] == "window"),

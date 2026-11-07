@@ -27,7 +27,7 @@ import server as vendor_server  # noqa: E402
 import tools as vendor_tools  # noqa: E402
 from mcp.server.fastmcp import FastMCP  # noqa: E402
 
-from cadhelper import analysis, draft, excel, learn, safety, scene, sketchup  # noqa: E402
+from cadhelper import analysis, draft, excel, learn, ppt, projects, safety, scene, sketchup  # noqa: E402
 
 INSTRUCTIONS = """\
 CAD도우미: 인테리어 사무소용 AutoCAD·SketchUp·엑셀 도우미. 사용자는 컴퓨터가 서툰 실무자다.
@@ -41,11 +41,46 @@ CAD도우미: 인테리어 사무소용 AutoCAD·SketchUp·엑셀 도우미. 사
 4. 새 파일(엑셀, HTML, DXF, PNG)은 항상 출력 폴더에 새로 만든다. 기존 파일을 덮어쓰지 않는다.
 5. 사용자가 고쳐주거나 선호를 말하면 learn_note로 저장한다. 같은 종류의 요청이 두 번째로 오면 learn_save_skill로 절차를 저장한다.
 6. 답은 짧은 한국어로, 전문용어 대신 쉬운 말로. 파일을 만들었으면 open_file로 열어 보여준다.
+7. 현장(프로젝트)별로 일한다. 사용자가 현장 이름을 말하면 project_open(없으면 project_create)으로 열고,
+   그 뒤 결과물은 그 현장 폴더에 저장된다. 다른 현장 얘기로 바뀌면 project_open으로 바꾼다.
+   받은 도면은 project_add_file로 현장 도면 폴더에 복사하고, project_open_drawing으로 연다.
+   현장 관련 결정·요청은 project_note로 남긴다.
+8. 발표자료는 ppt_presentation(그림은 capture_view·sketchup_capture로 먼저 만든다), 견적은 excel_estimate.
 """
 
 
 _LAYOUT_PROPS = ("ConfigName", "CanonicalMediaName", "PlotType", "UseStandardScale",
                  "StandardScale", "CenterPlot", "PlotRotation")
+
+
+def keep_capture(fn):
+    """capture_view renders to a scratch _view.png that the next capture
+    overwrites. Keep a named copy in the results folder and say where it is,
+    so it can go straight into a PPT / document."""
+    import functools
+    import shutil
+    from datetime import datetime
+
+    @functools.wraps(fn)
+    def wrapped(*args, **kwargs):
+        res = fn(*args, **kwargs)
+        try:
+            import config
+            src = config.SAVE_DIR / "_view.png"
+            if src.exists():
+                out = safety.out_dir()
+                out.mkdir(parents=True, exist_ok=True)
+                dst = out / f"평면도_캡처_{datetime.now():%m%d_%H%M%S}.png"
+                shutil.copy2(src, dst)
+                note = f"그림 파일로 저장됨: {dst}  (ppt_presentation 의 image 에 이 경로를 그대로 쓰면 됨)"
+                if isinstance(res, list):
+                    res = [note] + res
+                elif isinstance(res, str):
+                    res = note + "\n" + res
+        except Exception:  # noqa: BLE001 - the picture itself still came back
+            pass
+        return res
+    return wrapped
 
 
 def preserve_layout(fn):
@@ -101,6 +136,8 @@ class GatedRegistrar(vendor_server.LoggingRegistrar):
         def register(fn):
             if fn.__name__ in ("capture_view", "export_pdf"):
                 fn = preserve_layout(fn)
+            if fn.__name__ == "capture_view":
+                fn = keep_capture(fn)
             return inner(safety.gate(fn))
         return register
 
@@ -115,12 +152,15 @@ def build() -> FastMCP:
     scene.register(reg)
     draft.register(reg)
     excel.register(reg)
+    ppt.register(reg)
+    projects.register(reg)
     learn.register(reg)
 
     @reg.tool()
     def cadhelper_status() -> str:
         """Health check of everything (read-only): AutoCAD, SketchUp, folders."""
-        lines = [f"CAD도우미 폴더: {HOME}", f"결과물 폴더: {safety.OUT_DIR}", f"백업 폴더: {safety.BACKUP_DIR}"]
+        cur = projects.current()
+        lines = [f"CAD도우미 폴더: {HOME}", f"열린 현장: {cur.name if cur else '없음'}", f"결과물 폴더: {safety.out_dir()}", f"백업 폴더: {safety.BACKUP_DIR}"]
         try:
             from cadhelper import compat
             lines += compat.describe()
@@ -149,7 +189,7 @@ def build() -> FastMCP:
         """Open a result file for the user with its normal program (Excel,
         browser, AutoCAD, SketchUp, image viewer). Only opens; never edits."""
         p = Path(path)
-        allowed = {".xlsx", ".html", ".pdf", ".png", ".jpg", ".dxf", ".dwg", ".skp", ".csv", ".txt"}
+        allowed = {".xlsx", ".pptx", ".html", ".pdf", ".png", ".jpg", ".dxf", ".dwg", ".skp", ".csv", ".txt"}
         if not p.exists():
             raise FileNotFoundError(f"파일이 없습니다: {p}")
         if p.suffix.lower() not in allowed:
@@ -160,7 +200,7 @@ def build() -> FastMCP:
     @reg.tool()
     def open_output_folder() -> str:
         """Open the folder where all results are saved (in Windows Explorer)."""
-        out = safety.OUT_DIR
+        out = safety.out_dir()
         out.mkdir(parents=True, exist_ok=True)
         os.startfile(str(out))  # noqa: S606
         return f"결과물 폴더를 열었습니다: {out}"

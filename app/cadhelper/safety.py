@@ -27,6 +27,23 @@ HOME = Path(os.environ.get("CADHELPER_HOME") or Path.home() / "CadHelper")
 BACKUP_DIR = HOME / "backups"
 LOG_FILE = HOME / "logs" / "approvals.jsonl"
 OUT_DIR = Path(os.environ.get("CADHELPER_OUTPUT") or HOME / "output")
+_current_out: Path | None = None   # 지금 열린 프로젝트의 결과물 폴더 (projects.project_open 이 바꿈)
+
+
+def out_dir() -> Path:
+    """Where results go now: the open project's 결과물 folder, else the default."""
+    return _current_out or OUT_DIR
+
+
+def set_out_dir(p: Path | None) -> None:
+    global _current_out
+    _current_out = p
+    try:  # vendor AutoCAD tools (capture_view, save_drawing ...) write to config.SAVE_DIR
+        import config
+        config.SAVE_DIR = p or OUT_DIR
+        config.SAVE_DIR.mkdir(parents=True, exist_ok=True)
+    except Exception:  # noqa: BLE001
+        pass
 
 # Codex tool_timeout_sec is 900 (set by the installer); answer well before it.
 DIALOG_TIMEOUT_S = int(os.environ.get("CADHELPER_DIALOG_TIMEOUT", "540"))
@@ -151,7 +168,7 @@ def _save_precheck(kwargs: dict) -> None:
     if not name:
         return
     stem = Path(name).stem
-    if (OUT_DIR / f"{stem}.dwg").exists():
+    if (out_dir() / f"{stem}.dwg").exists():
         raise ChangeRefused(f"결과물 폴더에 '{stem}.dwg' 가 이미 있어 덮어쓰지 않았습니다. 다른 이름을 쓰세요.")
 
 

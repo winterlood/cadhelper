@@ -13,7 +13,8 @@ from pathlib import Path
 
 from mcp.server.fastmcp import Image
 
-from .safety import HOME, OUT_DIR
+from . import safety
+from .safety import HOME
 
 PORT = int(os.environ.get("CADHELPER_SKETCHUP_PORT", "47811"))
 TOKEN_FILE = HOME / "sketchup_token.txt"
@@ -112,8 +113,8 @@ def register(mcp) -> None:
         """Picture of the model so you can check your work. birds_eye=True moves
         the camera to a bird's-eye view of everything first; False keeps the
         user's current view."""
-        OUT_DIR.mkdir(parents=True, exist_ok=True)
-        path = (OUT_DIR / Path(filename).name).with_suffix(".png")
+        safety.out_dir().mkdir(parents=True, exist_ok=True)
+        path = (safety.out_dir() / Path(filename).name).with_suffix(".png")
         call("capture", path=str(path).replace("\\", "/"), iso=birds_eye, zoom=False, width=1400, height=900)
         return [f"저장: {path}", Image(path=str(path))]
 
@@ -121,7 +122,7 @@ def register(mcp) -> None:
     def sketchup_save_copy(filename: str) -> str:
         """Save a COPY of the open model as .skp in the output folder (the open
         file itself is not changed)."""
-        OUT_DIR.mkdir(parents=True, exist_ok=True)
-        path = (OUT_DIR / Path(filename).name).with_suffix(".skp")
+        safety.out_dir().mkdir(parents=True, exist_ok=True)
+        path = (safety.out_dir() / Path(filename).name).with_suffix(".skp")
         call("save_copy", path=str(path).replace("\\", "/"))
         return f"사본 저장: {path}"
