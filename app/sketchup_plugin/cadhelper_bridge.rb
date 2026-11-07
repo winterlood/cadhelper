@@ -9,7 +9,11 @@ require 'json'
 
 module CadHelperBridge
   PORT = (ENV['CADHELPER_SKETCHUP_PORT'] || '47811').to_i
-  HOME = File.join(ENV['USERPROFILE'] || Dir.home, 'CadHelper')
+  # 설치 프로그램이 실제 위치로 바꿔 씁니다. (못 바꿨으면 흔한 위치를 차례로 찾음)
+  HOME_INSTALLED = '@@CADHELPER_HOME@@'
+  HOME = [HOME_INSTALLED, File.join(ENV['SystemDrive'] || 'C:', 'work', '.cadhelper'),
+          File.join(ENV['USERPROFILE'] || Dir.home, 'CadHelper')].find { |d| !d.include?('@@') && File.exist?(File.join(d, 'sketchup_token.txt')) } ||
+         File.join(ENV['USERPROFILE'] || Dir.home, 'CadHelper')
   TOKEN_FILE = File.join(HOME, 'sketchup_token.txt')
 
   def self.token

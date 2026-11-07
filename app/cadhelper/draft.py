@@ -21,9 +21,8 @@ from acad import bridge
 
 from .analysis import (ANALYSIS_TIMEOUT, FURNITURE_LAYERS, PYEONG_M2, _doc, _is_closed, _iter_space,
                        _match, _poly_points, _text_of, _units)
-from .safety import HOME
+from .safety import HOME, OUT_DIR
 
-OUT_DIR = HOME / "output"
 
 KO = [  # (pattern, Korean)  - longest / most specific first
     (r"KITCHEN\s*/\s*DINING", "주방·식당"), (r"WASH\s*/\s*DRY", "세탁실"), (r"SHOE\s*STORAGE", "신발장"),

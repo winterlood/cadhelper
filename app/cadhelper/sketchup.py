@@ -13,11 +13,10 @@ from pathlib import Path
 
 from mcp.server.fastmcp import Image
 
-from .safety import HOME
+from .safety import HOME, OUT_DIR
 
 PORT = int(os.environ.get("CADHELPER_SKETCHUP_PORT", "47811"))
 TOKEN_FILE = HOME / "sketchup_token.txt"
-OUT_DIR = HOME / "output"
 
 
 class SketchUpError(RuntimeError):

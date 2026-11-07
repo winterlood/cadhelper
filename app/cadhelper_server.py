@@ -16,7 +16,7 @@ from pathlib import Path
 APP = Path(__file__).resolve().parent
 HOME = Path(os.environ.get("CADHELPER_HOME") or Path.home() / "CadHelper")
 os.environ.setdefault("CADHELPER_HOME", str(HOME))
-os.environ.setdefault("ACAD_MCP_SAVE_DIR", str(HOME / "output"))
+os.environ.setdefault("ACAD_MCP_SAVE_DIR", os.environ.get("CADHELPER_OUTPUT") or str(HOME / "output"))
 os.environ.pop("ACAD_MCP_ENABLE_SEND_COMMAND", None)  # raw commands only via the gated cad_run_command
 sys.path.insert(0, str(APP / "vendor"))
 sys.path.insert(0, str(APP))
@@ -120,7 +120,7 @@ def build() -> FastMCP:
     @reg.tool()
     def cadhelper_status() -> str:
         """Health check of everything (read-only): AutoCAD, SketchUp, folders."""
-        lines = [f"CAD도우미 폴더: {HOME}", f"결과물 폴더: {HOME / 'output'}", f"백업 폴더: {safety.BACKUP_DIR}"]
+        lines = [f"CAD도우미 폴더: {HOME}", f"결과물 폴더: {safety.OUT_DIR}", f"백업 폴더: {safety.BACKUP_DIR}"]
         try:
             from cadhelper import compat
             lines += compat.describe()
@@ -160,7 +160,7 @@ def build() -> FastMCP:
     @reg.tool()
     def open_output_folder() -> str:
         """Open the folder where all results are saved (in Windows Explorer)."""
-        out = HOME / "output"
+        out = safety.OUT_DIR
         out.mkdir(parents=True, exist_ok=True)
         os.startfile(str(out))  # noqa: S606
         return f"결과물 폴더를 열었습니다: {out}"

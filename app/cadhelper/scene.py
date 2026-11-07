@@ -41,10 +41,9 @@ import re
 from datetime import date
 from pathlib import Path
 
-from .safety import HOME
+from .safety import HOME, OUT_DIR
 
 TEMPLATES = Path(__file__).resolve().parent.parent / "templates"
-OUT_DIR = HOME / "output"
 
 
 def _load(scene_path: str) -> dict:

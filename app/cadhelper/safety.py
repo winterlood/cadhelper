@@ -26,7 +26,7 @@ from typing import Any, Callable
 HOME = Path(os.environ.get("CADHELPER_HOME") or Path.home() / "CadHelper")
 BACKUP_DIR = HOME / "backups"
 LOG_FILE = HOME / "logs" / "approvals.jsonl"
-OUT_DIR = HOME / "output"
+OUT_DIR = Path(os.environ.get("CADHELPER_OUTPUT") or HOME / "output")
 
 # Codex tool_timeout_sec is 900 (set by the installer); answer well before it.
 DIALOG_TIMEOUT_S = int(os.environ.get("CADHELPER_DIALOG_TIMEOUT", "540"))

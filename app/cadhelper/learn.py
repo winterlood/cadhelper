@@ -24,7 +24,7 @@ PROFILE = KDIR / "profile.json"
 PRICES = KDIR / "prices.json"
 LESSONS = KDIR / "lessons.md"
 CODEX_HOME = Path(os.environ.get("CODEX_HOME") or Path.home() / ".codex")
-SKILLS_DIR = CODEX_HOME / "skills"
+SKILLS_DIR = Path(os.environ.get("CADHELPER_SKILLS_DIR") or CODEX_HOME / "skills")
 LEARNED_PREFIX = "ch-learned-"
 
 

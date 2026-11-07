@@ -19,27 +19,38 @@
 
 ## 설치
 
-1. [Releases](../../releases)에서 `CadHelper-*.zip` 을 받아 **바탕화면 등 아무 곳에** 압축을 풉니다. (`%USERPROFILE%\CadHelper` 안에는 풀지 마세요)
+1. [Releases](../../releases)에서 `CadHelper-*.zip` 을 받아 **바탕화면 등 아무 곳에** 압축을 풉니다. (`C:\work` 안에는 풀지 마세요)
 2. `설치하기.cmd` 더블클릭 → 5~10분 기다림 (Python이 없으면 자동 설치, 인터넷 필요)
 3. Codex를 완전히 껐다 켭니다. SketchUp도 껐다 켭니다.
 4. 처음 한 번만: Codex 데스크톱 앱에서 **프로젝트 추가 → `C:\work`** 폴더 선택 (이후 이 프로젝트에서 대화)
-5. 바탕화면 `CAD도우미 점검` 으로 상태 확인
+5. `C:\work\CAD도우미 점검` 으로 상태 확인
 
 자세한 사용법은 함께 들어 있는 **`CAD도우미 사용설명서.pdf`**, AI를 처음 쓰는 분은 **`AI 사용 안내서.pdf`** 를 보세요.
 제거는 `제거하기.cmd` (결과물·백업·배운 내용은 남겨 둠).
 
 ## 설치하면 바뀌는 것
 
+모든 것이 **`C:\work` 프로젝트 폴더 안**에 설치됩니다. (C:\ 에 폴더를 만들 수 없는 PC면 바탕화면 `work`)
+
 | 위치 | 내용 |
 |---|---|
-| `%USERPROFILE%\CadHelper\` | 프로그램(app), Python 가상환경(venv), 결과물(output), 백업(backups), 배운 내용(knowledge), 기록(logs) |
-| `~/.codex/config.toml` | `# >>> cad-helper >>>` 블록 하나 추가 (stdio MCP 서버 — Codex가 직접 실행, 포트·별도 창 없음). 처음 설치 전 원본은 `config.toml.bak-cadhelper` |
-| `~/.codex/config.toml` (같은 블록 안) | `C:\work` 신뢰 프로젝트 등록, 쓰기 허용 폴더(`sandbox_workspace_write.writable_roots`: CadHelper). 도면이 있는 내 문서·바탕화면 등은 읽기만 — 도면 열기·저장은 CAD도우미 도구가 확인창을 거쳐 함. 이미 직접 설정한 값이 있으면 건드리지 않음 |
-| `C:\work\` | Codex 데스크톱 앱 프로젝트 폴더 (프로젝트 규칙 AGENTS.md, `결과물` 바로가기, 바탕화면에 `work` 바로가기). C:\ 에 만들 수 없는 PC면 바탕화면에 만듦. 제거해도 남겨 둠 |
-| `~/.codex/skills/ch-*` | 기본 스킬 6개 + 사용하며 생기는 `ch-learned-*` |
-| `~/.codex/AGENTS.md` | 표시된 블록 하나 추가 (안전 규칙·학습 규칙) |
-| `%APPDATA%\SketchUp\SketchUp 20xx\SketchUp\Plugins\cadhelper_bridge.rb` | SketchUp 연결 플러그인 (127.0.0.1 전용, 토큰 인증) |
-| 바탕화면 | `CAD도우미 결과물`, `CAD도우미 점검` 바로가기, PDF 설명서 |
+| `C:\work\AGENTS.md` | Codex 규칙 (안전 규칙·학습 규칙). 표시된 블록만 관리하고 직접 쓴 내용은 보존 |
+| `C:\work\.codex\config.toml` | CAD도우미 연결 (stdio MCP 서버 — Codex가 직접 실행, 포트·별도 창 없음). 표시된 블록만 관리 |
+| `C:\work\.codex\skills\ch-*` | 기본 스킬 6개 + 사용하며 생기는 `ch-learned-*` |
+| `C:\work\.cadhelper\` | 프로그램(app), Python 가상환경(venv), 백업(backups), 배운 내용(knowledge), 기록(logs) |
+| `C:\work\결과물\` | 엑셀·3D·사진 결과물 |
+| `C:\work\` | `CAD도우미 점검` 바로가기, PDF 설명서 |
+
+work 밖에는 꼭 필요한 것만 둡니다:
+
+| 위치 | 내용 |
+|---|---|
+| `~/.codex/config.toml` | `C:\work` 신뢰 등록 블록 하나 (Codex는 신뢰한 폴더의 `.codex` 설정만 읽음). 처음 설치 전 원본은 `config.toml.bak-cadhelper` |
+| `%APPDATA%\SketchUp\SketchUp 20xx\SketchUp\Plugins\cadhelper_bridge.rb` | SketchUp 연결 플러그인 — SketchUp이 이 폴더에서만 읽어서 work 밖에 둠 (127.0.0.1 전용, 토큰 인증) |
+| 바탕화면 | `work` 바로가기 |
+
+도면 파일(내 문서·바탕화면 등)은 읽기만 합니다. 도면 열기·수정은 CAD도우미 도구가 확인창을 거쳐서 하고, Codex 셸에는 work 밖 쓰기 권한을 주지 않습니다.
+v1.0.0(사용자 폴더 설치)에서 업데이트하면 결과물·백업·배운 내용·배운 스킬을 work로 옮기고 예전 전역 설정을 정리합니다.
 
 ## 안전장치
 
@@ -78,7 +89,7 @@ docs/                           설명서 원본(HTML) → PDF
 - **AutoCAD**: 2018 ~ 2027 정식판(및 Architecture 등 버티컬). 여러 버전이 깔려 있거나 COM 등록이 꼬여 있어도, 버전 무관 ProgID → 버전별 ProgID(26 ~ 22) 순서로 **지금 켜져 있는 AutoCAD**를 찾아 연결합니다. ZWCAD · GstarCAD · BricsCAD도 같은 방식으로 연결을 시도합니다(미검증).
 - **AutoCAD LT**: 외부 자동화(COM)가 막혀 있어 도면 직접 조작은 불가. 설치 시 자동으로 알려 줍니다.
 - **SketchUp**: 2017 이상 데스크톱판(Pro/Make). Windows 설치 목록과 Program Files, `%APPDATA%` 를 모두 확인해 설치 위치·드라이브와 무관하게 플러그인을 넣습니다. 웹판(SketchUp Free)은 불가.
-- 설치 시 감지된 프로그램과 버전을 화면에 보여 주고, 바탕화면 `CAD도우미 점검` 에서도 확인할 수 있습니다.
+- 설치 시 감지된 프로그램과 버전을 화면에 보여 주고, `C:\work\CAD도우미 점검` 에서도 확인할 수 있습니다.
 
 ## 확인된 환경
 

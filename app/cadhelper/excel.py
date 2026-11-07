@@ -14,9 +14,8 @@ from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 
 from .learn import load_prices, load_profile
-from .safety import HOME
+from .safety import HOME, OUT_DIR
 
-OUT_DIR = HOME / "output"
 THIN = Side(style="thin", color="999999")
 BOX = Border(left=THIN, right=THIN, top=THIN, bottom=THIN)
 HEAD_FILL = PatternFill("solid", fgColor="E9EEF2")

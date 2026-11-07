@@ -1,4 +1,4 @@
-"""CAD도우미 점검: double-clicked from the desktop. Prints, in plain Korean,
+"""CAD도우미 점검: double-clicked from the work folder. Prints, in plain Korean,
 whether each part works, then waits for Enter."""
 
 import os
@@ -8,21 +8,14 @@ from pathlib import Path
 APP = Path(__file__).resolve().parent
 sys.path.insert(0, str(APP / "vendor"))
 sys.path.insert(0, str(APP))
-os.environ.setdefault("CADHELPER_HOME", str(Path.home() / "CadHelper"))
-os.environ.setdefault("ACAD_MCP_SAVE_DIR", str(Path(os.environ["CADHELPER_HOME"]) / "output"))
-
-
-def _desktop() -> str:
-    try:
-        import ctypes
-        from ctypes import wintypes
-        buf = ctypes.create_unicode_buffer(wintypes.MAX_PATH)
-        ctypes.windll.shell32.SHGetFolderPathW(None, 0x0010, None, 0, buf)  # CSIDL_DESKTOPDIRECTORY
-        if buf.value:
-            return buf.value
-    except Exception:  # noqa: BLE001
-        pass
-    return str(Path.home() / "Desktop")
+# 설치 위치: <work>\.cadhelper\app\check.py  ->  HOME = <work>\.cadhelper, WORK = <work>
+HOME = APP.parent
+WORK = HOME.parent
+os.environ.setdefault("CADHELPER_HOME", str(HOME))
+if (WORK / "결과물").is_dir():
+    os.environ.setdefault("CADHELPER_OUTPUT", str(WORK / "결과물"))
+os.environ.setdefault("CADHELPER_SKILLS_DIR", str(WORK / ".codex" / "skills"))
+os.environ.setdefault("ACAD_MCP_SAVE_DIR", os.environ.get("CADHELPER_OUTPUT") or str(HOME / "output"))
 
 
 def main() -> None:
@@ -49,28 +42,22 @@ def main() -> None:
     except Exception as exc:  # noqa: BLE001
         print(f"[확인] 설치 프로그램 목록을 읽지 못함: {exc}")
 
-    codex_cfg = Path(os.environ.get("CODEX_HOME") or Path.home() / ".codex") / "config.toml"
+    codex_cfg = WORK / ".codex" / "config.toml"
     if codex_cfg.exists() and "[mcp_servers.cad-helper]" in codex_cfg.read_text(encoding="utf-8", errors="ignore"):
-        print("[정상] Codex에 등록됨")
+        n = len(list((WORK / ".codex" / "skills").glob("ch-*")))
+        print(f"[정상] Codex 연결 설정: {codex_cfg} (스킬 {n}개)")
     else:
         ok = False
-        print("[문제] Codex에 등록 안 됨 -> 설치하기를 다시 실행하세요")
-
-    work = Path(os.environ.get("SystemDrive", "C:") + "\\") / "work"
-    if not work.is_dir():
-        work = Path(_desktop()) / "work"
-    if work.is_dir():
-        print(f"[정상] Codex 프로젝트 폴더: {work}  (Codex 앱에서 이 폴더를 프로젝트로 추가해 쓰세요)")
-    else:
-        print("[확인] C:\\work 폴더가 없음 -> 설치하기를 다시 실행하세요")
+        print("[문제] Codex 연결 설정이 없음 -> 설치하기를 다시 실행하세요")
+    print(f"[정보] Codex 프로젝트 폴더: {WORK}  (Codex 앱에서 이 폴더를 프로젝트로 추가해서 쓰세요)")
 
     try:
         from acad import bridge
 
-        def work(acad):
+        def probe(acad):
             app = acad.connect(launch_if_missing=False)
             return app.Version, [d.Name for d in app.Documents]
-        ver, docs = bridge.run(work, 20)
+        ver, docs = bridge.run(probe, 20)
         print(f"[정상] AutoCAD 연결 (버전 {ver}) 열린 도면: {', '.join(docs) or '없음'}")
     except Exception as exc:  # noqa: BLE001
         print(f"[확인] AutoCAD가 꺼져 있거나 연결 안 됨 (켜고 도면을 열면 됩니다): {str(exc)[:120]}")
